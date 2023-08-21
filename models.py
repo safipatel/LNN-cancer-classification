@@ -92,7 +92,6 @@ class LNN (nn.Module):
         self.conv3 =  nn.Conv2d(32,64,5, padding=2, stride=2)
         self.conv4 =  nn.Conv2d(64,128,5, padding=2, stride = 2)
         self.bn4 = nn.BatchNorm2d(128)
-        #best 263048
 
         ### DESIGNED NCP architecture
         wiring = AutoNCP(hidden_size, num_classes)    # 99,208 parameters

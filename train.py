@@ -26,9 +26,9 @@ SEQUENCE_LENGTH = 32
 
 
 ## FLAGS
-MODEL_ARCH = "LNN"       # Models: "LNN" or "CNN" or "DNN"
+MODEL_ARCH = "DNN"       # Models: "LNN" or "DNN"
 SAVE_OR_LOAD = "SAVE" # "SAVE" to save, "LOAD" to load, None to disable
-MODEL_PATH = "saved_models/LNN_SAVE_NEW"    # path to load/save
+MODEL_PATH = "saved_models/DNN_SAVE_NEW"    # path to load/save
 
 # Load in MedMNIST data
 cancer_info = medmnist.INFO["breastmnist"]   # BINARY CLASSIFICATION 1x28x28
@@ -47,8 +47,8 @@ val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = BATCH_S
 
 if MODEL_ARCH == "LNN":
     model = LNN(NCP_INPUT_SIZE, HIDDEN_NEURONS, NUM_OUTPUT_CLASSES, SEQUENCE_LENGTH).to(device)
-elif MODEL_ARCH == "CNN":
-    model = CNN_Net(in_channels=1, num_classes=NUM_OUTPUT_CLASSES).to(device)
+# elif MODEL_ARCH == "CNN":
+#     model = CNN_Net(in_channels=1, num_classes=NUM_OUTPUT_CLASSES).to(device)
 elif MODEL_ARCH == "DNN":
     model = DNN(28 * 28).to(device)
 
@@ -142,7 +142,7 @@ epochs = range(0, NUM_EPOCHS)
 
 plt.plot(epochs, [x for x in train_loss_dict.values()], label='Training Loss')
 
-plt.title('Training Loss')
+plt.title('Liquid Neural Network Training Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 
@@ -157,7 +157,7 @@ epochs = range(0, NUM_EPOCHS)
 plt.plot(epochs, [x for x in train_acc_dict.values()], label='Training Accuracy')
 plt.plot(epochs, val_acc_dict.values(), label='Validation Accuracy')
 
-plt.title('Training and Validation Accuracy')
+plt.title('Liquid Neural Network Training and Validation Accuracy')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 
