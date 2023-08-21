@@ -4,10 +4,11 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 from tqdm import tqdm
-from models import CNN_Net, LNN
+from models import CNN_Net, LNN, DNN
 import medmnist
 import matplotlib.pyplot as plt
 import pickle
+from sklearn.metrics import f1_score, roc_auc_score
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
@@ -15,7 +16,7 @@ print("Using device: ", device)
 
 # CONSTANTS
 HIDDEN_NEURONS = 19     # how many hidden neurons for CFC
-NUM_EPOCHS = 100
+NUM_EPOCHS = 50
 LEARNING_RATE = 0.001
 BATCH_SIZE = 128
 NUM_OUTPUT_CLASSES = 2
@@ -25,9 +26,9 @@ SEQUENCE_LENGTH = 32
 
 
 ## FLAGS
-MODEL_ARCH = "LNN"       # Models: "LNN" or "CNN" or "DNN"
-SAVE_OR_LOAD = "SAVE" # "SAVE" to save, "LOAD" to load, None to disable
-MODEL_PATH = "saved_models/LNN_SAVE_full"    # path to load/save
+MODEL_ARCH = "DNN"       # Models: "LNN" or "CNN" or "DNN"
+SAVE_OR_LOAD = "LOAD" # "SAVE" to save, "LOAD" to load, None to disable
+MODEL_PATH = "saved_models/DNN_SAVE_50"    # path to load/save
 
 # Load in MedMNIST data
 cancer_info = medmnist.INFO["breastmnist"]   # BINARY CLASSIFICATION 1x28x28
@@ -48,7 +49,8 @@ if MODEL_ARCH == "LNN":
     model = LNN(NCP_INPUT_SIZE, HIDDEN_NEURONS, NUM_OUTPUT_CLASSES, SEQUENCE_LENGTH).to(device)
 elif MODEL_ARCH == "CNN":
     model = CNN_Net(in_channels=1, num_classes=NUM_OUTPUT_CLASSES).to(device)
-
+elif MODEL_ARCH == "DNN":
+    model = DNN(28 * 28).to(device)
 
 
 print("Amount of trainable parameters: ", sum(p.numel() for p in model.parameters() if p.requires_grad))
@@ -171,6 +173,7 @@ print("Final validation accuracy: ", val_acc_dict.get(NUM_EPOCHS - 1))
 model.eval()
 y_true = torch.tensor([]).to(device)
 y_score = torch.tensor([]).to(device)
+y_output_labels = torch.tensor([]).to(device)
 
 
 with torch.no_grad():
@@ -179,18 +182,28 @@ with torch.no_grad():
         labels = labels.to(device)
         
         outputs = model(images)
-        
+        y_output_labels = torch.cat((y_output_labels,torch.argmax(outputs.data, 1)),0)
+
         labels = labels.squeeze().long()
         outputs = outputs.softmax(dim=-1)
         labels = labels.float().resize_(len(labels), 1)
 
-        y_true = torch.cat((y_true, labels), 0)
+        y_true = torch.cat((y_true.long(), labels), 0)
         y_score = torch.cat((y_score, outputs), 0)
 
     y_true = y_true.cpu().numpy()
     y_score = y_score.detach().cpu().numpy()
+    y_output_labels = y_output_labels.detach().cpu().numpy()
     
     evaluator = medmnist.Evaluator('breastmnist', 'test')
     metrics = evaluator.evaluate(y_score)
+    
 
-    print('%s  Area under curve (AUC): %.4f  Accuracy (ACC): %.4f' % ("Test metrics", *metrics))
+    y_true = y_true.squeeze()
+    y_score = y_score.squeeze()
+    y_score = y_score[:, -1]
+
+
+    f_score = f1_score(y_true, y_output_labels)
+
+    print('%s  Area under curve (AUC): %.4f  Accuracy (ACC): %.4f F1-Score: %.4f' % ("Test metrics", *metrics, f_score))

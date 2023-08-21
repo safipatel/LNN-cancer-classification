@@ -4,11 +4,29 @@ import torch.nn.functional as F
 
 from ncps.torch import CfC, LTC
 from ncps.wirings import AutoNCP, NCP
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+class DNN(nn.Module):   # 935,298 parameters
+    def __init__(self, img_size):
+        super(DNN, self).__init__()
+        self.img_size = img_size
+        self.fc1 = nn.Linear(img_size, 64 * 4 * 4)
+        self.fc2 = nn.Linear(64 * 4 * 4, 128) 
+        self.fc3 = nn.Linear(128, 2)
+
+    def forward(self, x):
+        
+        x = x.view(-1, self.img_size)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+
+        return x
+        
 
 class CNN_Net(nn.Module):
     def __init__(self, in_channels, num_classes):
@@ -76,8 +94,9 @@ class LNN (nn.Module):
         self.bn4 = nn.BatchNorm2d(128)
         
 
-        ### DESIGNED NCP archicture
-        # wiring = AutoNCP(hidden_size, num_classes, sparsity_level=0.1) 
+        ### DESIGNED NCP architecture
+        wiring = AutoNCP(hidden_size, num_classes)    # 99,208 parameters
+
         # wiring = NCP(
         #     inter_neurons=13,  # Number of inter neurons
         #     command_neurons=4,  # Number of command neurons
@@ -88,10 +107,14 @@ class LNN (nn.Module):
         #     # command neuron layer
         #     motor_fanin=4,  # How many incomming syanpses has each motor neuron
         # )
-        # self.rnn = CfC(ncp_input_size, wiring)
+        self.rnn = CfC(ncp_input_size, wiring)
+        # make_wiring_diagram(wiring, "circular")
+        # make_wiring_diagram(wiring, "spiral")
+        # make_wiring_diagram(wiring, "shell")
+        # make_wiring_diagram(wiring, "kamada")
 
         ### Fully connected NCP architecture 
-        self.rnn = CfC(ncp_input_size, hidden_size, proj_size = num_classes, batch_first = True) # input shape -> batch_size, seq len, feature_size (input size)  . Batch_first just means we need that batch dim present
+        # self.rnn = CfC(ncp_input_size, hidden_size, proj_size = num_classes, batch_first = True) # input shape -> batch_size, seq len, feature_size (input size)  . Batch_first just means we need that batch dim present
         
     
     def forward(self, x):
@@ -112,3 +135,11 @@ class LNN (nn.Module):
         return out
 
 
+def make_wiring_diagram(wiring, layout):
+    sns.set_style("white")
+    plt.figure(figsize=(12, 12))
+    legend_handles = wiring.draw_graph(layout=layout,neuron_colors={"command": "tab:cyan"})
+    plt.legend(handles=legend_handles, loc="upper center", bbox_to_anchor=(1, 1))
+    sns.despine(left=True, bottom=True)
+    plt.tight_layout()
+    plt.show()
