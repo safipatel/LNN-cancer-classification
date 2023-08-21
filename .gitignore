@@ -1,3 +1,5 @@
 .vscode/
 __pycache__/
-saved_models/
+saved_models/*
+!saved_models/LNN_SAVE_898590
+!saved_models/LNN_SAVE_898590_train_data

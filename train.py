@@ -8,14 +8,14 @@ from models import CNN_Net, LNN, DNN
 import medmnist
 import matplotlib.pyplot as plt
 import pickle
-from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.metrics import f1_score
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
 
-# CONSTANTS
-HIDDEN_NEURONS = 19     # how many hidden neurons for CFC
+### CONSTANTS ###
+HIDDEN_NEURONS = 19   # how many hidden neurons within LNN
 NUM_EPOCHS = 50
 LEARNING_RATE = 0.001
 BATCH_SIZE = 128
@@ -25,10 +25,10 @@ NCP_INPUT_SIZE = 16
 SEQUENCE_LENGTH = 32
 
 
-## FLAGS
-MODEL_ARCH = "DNN"       # Models: "LNN" or "DNN"
-SAVE_OR_LOAD = "SAVE" # "SAVE" to save, "LOAD" to load, None to disable
-MODEL_PATH = "saved_models/DNN_SAVE_NEW"    # path to load/save
+### FLAGS ###
+MODEL_ARCH = "LNN"       # Models: "LNN" or "DNN"
+SAVE_OR_LOAD = "LOAD" # "SAVE" to save, "LOAD" to load, None to disable
+MODEL_PATH = "saved_models/LNN_SAVE_898590"    # path to load/save
 
 # Load in MedMNIST data
 cancer_info = medmnist.INFO["breastmnist"]   # BINARY CLASSIFICATION 1x28x28
@@ -56,12 +56,13 @@ elif MODEL_ARCH == "DNN":
 print("Amount of trainable parameters: ", sum(p.numel() for p in model.parameters() if p.requires_grad))
 
 
-### TRAINING SECTION
+### TRAINING SECTION ###
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)  
 
+# Record loss/acc for graphs later
 train_loss_dict = {}
 train_acc_dict = {}
 val_acc_dict = {}
@@ -142,7 +143,7 @@ epochs = range(0, NUM_EPOCHS)
 
 plt.plot(epochs, [x for x in train_loss_dict.values()], label='Training Loss')
 
-plt.title('Liquid Neural Network Training Loss')
+plt.title(MODEL_ARCH + ' Neural Network Training Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 
@@ -157,7 +158,7 @@ epochs = range(0, NUM_EPOCHS)
 plt.plot(epochs, [x for x in train_acc_dict.values()], label='Training Accuracy')
 plt.plot(epochs, val_acc_dict.values(), label='Validation Accuracy')
 
-plt.title('Liquid Neural Network Training and Validation Accuracy')
+plt.title(MODEL_ARCH + ' Training and Validation Accuracy')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 
@@ -168,7 +169,7 @@ plt.show()
 print("Final validation accuracy: ", val_acc_dict.get(NUM_EPOCHS - 1))
 
 
-# TESTING
+### TESTING ###
 
 model.eval()
 y_true = torch.tensor([]).to(device)
