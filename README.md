@@ -31,9 +31,9 @@ Below are the figures of the training loss, training accuracy, and validation ac
 ![train_val_accuracy](assets/training_val_acc.png)
 
 When using the final testing set, the LNN model had the following scores: <br>
-**Area under curve (AUC): 0.8897** <br>
-**Accuracy (ACC) : 0.8462**<br>
-**F1-score: 0.8974** <br>
+### **Area under curve (AUC): 0.8897** <br>
+### **Accuracy (ACC) : 0.8462**<br>
+### **F1-score: 0.8974** <br>
 
 
 In order to benchmark the results of the LNN, it was compared a traditional deep neural network (DNN) trained on the data and same hyperparameters. The AUC, ACC, and F1-score are compared below.
@@ -42,10 +42,10 @@ In order to benchmark the results of the LNN, it was compared a traditional deep
 ![acc-comparision](assets/acc.png)
 ![fscore-comparision](assets/F-score.png)
 
-Notice the significant performance increases despite the difference in amount of parameters (120% percent difference): 
+Notice the significant performance increases despite the difference in amount of parameters (120% percent difference): <br>
 ![param-comparison](assets/param_count.png)
 
-Liquid neural networks are considerably less sparse, **yet still outperform the traditional deep neural networks on all metrics** over this breast cancer image classification task.
+Liquid neural networks are considerably more sparse, which as the original researchers behind LNNs noted has positive implications on interpreting the model and examining the network's attention. And despite the smaller model, **it still manages to outperform the traditional deep neural networks on all metrics** over the breast cancer image classification task.
 
 
 ### Citations
