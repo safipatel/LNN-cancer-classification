@@ -26,9 +26,9 @@ SEQUENCE_LENGTH = 32
 
 
 ## FLAGS
-MODEL_ARCH = "DNN"       # Models: "LNN" or "CNN" or "DNN"
-SAVE_OR_LOAD = "LOAD" # "SAVE" to save, "LOAD" to load, None to disable
-MODEL_PATH = "saved_models/DNN_SAVE_50"    # path to load/save
+MODEL_ARCH = "LNN"       # Models: "LNN" or "CNN" or "DNN"
+SAVE_OR_LOAD = "SAVE" # "SAVE" to save, "LOAD" to load, None to disable
+MODEL_PATH = "saved_models/LNN_SAVE_NEW"    # path to load/save
 
 # Load in MedMNIST data
 cancer_info = medmnist.INFO["breastmnist"]   # BINARY CLASSIFICATION 1x28x28
